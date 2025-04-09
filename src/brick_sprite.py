@@ -6,12 +6,9 @@ class BrickSprite(pygame.sprite.Sprite):
             self,
             mass: float,
             velocity: float,
-
             rect: pygame.FRect,
-
             color: pygame.typing.ColorLike,
             screen_width: int,
-            image: pygame.Surface | None = None,
     ):
         super().__init__()
 
@@ -24,9 +21,6 @@ class BrickSprite(pygame.sprite.Sprite):
         self.screen_width = screen_width
 
         self.image.fill(color)
-
-        if image is not None:
-            self.image.blit(image, (self.image.width // 2 - image.width // 2, self.image.height - image.height - 4))
 
     def _move(self, dt: float):
 
