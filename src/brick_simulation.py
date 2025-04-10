@@ -51,14 +51,14 @@ def brick_simulation(
         BrickSprite(
             mass=mass_one,
             velocity=velocity_one,
-            rect=pygame.FRect(0, 100, 100, 50),
+            rect=pygame.FRect(50, 100, 100, 50),
             color="red",
             screen_width=screen.width,
         ),
         BrickSprite(
             mass=mass_two,
-            velocity=velocity_two,
-            rect=pygame.FRect(screen.width - 100, 100, 100, 50),
+            velocity=-velocity_two,
+            rect=pygame.FRect(screen.width - 150, 100, 100, 50),
             color="blue",
             screen_width=screen.width,
         )
