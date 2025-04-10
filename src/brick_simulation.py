@@ -1,5 +1,6 @@
 import pygame
 from brick_sprite import BrickSprite
+import constants
 
 
 def _render_velocity_texts(font: pygame.Font, brick_group: pygame.sprite.Group) -> (pygame.Surface, pygame.Surface):
@@ -19,7 +20,7 @@ def _render_energy_texts(font: pygame.Font, brick_group: pygame.sprite.Group) ->
 
 
 def _calculate_simulation_info_pos(
-        screen: pygame.Surface, m1_text: pygame.Surface, v2_text: pygame.Surface
+        screen: pygame.Surface, m1_text: pygame.Surface
 ) -> ((int, int), (int, int), (int, int), (int, int)):
 
     base_height = 230
@@ -41,6 +42,21 @@ def _calculate_simulation_info_pos(
         (second_col_x, second_row_y),
         (second_col_x, third_row_y),
     )
+
+
+def _draw_line_scale(screen: pygame.Surface):
+    line_height = 150
+    line_thickness = 1
+    color = "grey50"
+
+    pygame.draw.line(screen, color, (0, line_height), (screen.width, line_height), line_thickness)
+    pygame.draw.line(screen, color, (0, line_height - 5), (0, line_height + 5), line_thickness * 2)
+    pygame.draw.line(screen, color, (screen.width - 2, line_height - 5), (screen.width - 2, line_height + 5), line_thickness * 2)
+
+
+def _render_screen_width_text(font: pygame.Font, screen_width) -> pygame.Surface:
+    screen_width_meters = screen_width / constants.PIXELS_PER_METER
+    return font.render(f"{screen_width_meters:.2f} m", True, "grey50")
 
 
 def brick_simulation(
@@ -79,6 +95,7 @@ def brick_simulation(
     # init fonts and text
     monospace = pygame.font.SysFont("monospace", 18)
     cambria_math = pygame.font.SysFont("cambriamath", 24)
+    cambria_math_small = pygame.font.SysFont("cambriamath", 14)
 
     pause_hint = monospace.render("Press space to pause/resume the simulation", True, "grey80")
     paused_text = monospace.render("simulation paused", True, "grey85")
@@ -91,8 +108,10 @@ def brick_simulation(
     energy1_text, energy2_text = _render_energy_texts(cambria_math, bricks)
 
     m1_text_pos, v1_text_pos, energy1_text_pos, m2_text_pos, v2_text_pos, energy2_text_pos = _calculate_simulation_info_pos(
-        screen, m1_text, v2_text
+        screen, m1_text
     )
+
+    screen_width_text = _render_screen_width_text(cambria_math_small, screen.width)
 
     while running:
 
@@ -116,10 +135,16 @@ def brick_simulation(
                     bricks.sprites()[1].rect.left = bricks.sprites()[0].rect.right + 1
 
                 m1_text_pos, v1_text_pos, energy1_text_pos, m2_text_pos, v2_text_pos, energy2_text_pos = _calculate_simulation_info_pos(
-                    screen, m1_text, v2_text
+                    screen, m1_text
                 )
 
+                screen_width_text = _render_screen_width_text(cambria_math_small, screen_width)
+
         screen.fill("black")
+
+        _draw_line_scale(screen)
+        screen.blit(screen_width_text, (screen.width // 2 - screen_width_text.width // 2, 156))
+
         bricks.draw(screen)
 
         screen.blit(pause_hint, (screen.width // 2 - pause_hint.width // 2, screen.height - pause_hint.height))
