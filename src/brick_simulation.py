@@ -2,7 +2,7 @@ import pygame
 from brick_sprite import BrickSprite
 
 
-def _render_velocity_texts(font, brick_group: pygame.sprite.Group) -> (pygame.Surface, pygame.Surface):
+def _render_velocity_texts(font: pygame.Font, brick_group: pygame.sprite.Group) -> (pygame.Surface, pygame.Surface):
     sprites = brick_group.sprites()
     return (
         font.render(f"v\u2081 = {abs(sprites[0].velocity):.2f} m/s", True, "grey85"),
@@ -10,24 +10,35 @@ def _render_velocity_texts(font, brick_group: pygame.sprite.Group) -> (pygame.Su
     )
 
 
+def _render_energy_texts(font: pygame.Font, brick_group: pygame.sprite.Group) -> (pygame.Surface, pygame.Surface):
+    sprites = brick_group.sprites()
+    return (
+        font.render(f"E\u2096\u2081 = {sprites[0].kinetic_energy:.2f} J", True, "grey85"),
+        font.render(f"E\u2096\u2082 = {sprites[1].kinetic_energy:.2f} J", True, "grey85"),
+    )
+
+
 def _calculate_simulation_info_pos(
         screen: pygame.Surface, m1_text: pygame.Surface, v2_text: pygame.Surface
 ) -> ((int, int), (int, int), (int, int), (int, int)):
 
-    base_height = 200
+    base_height = 230
     line_spacing = 5
-    margin = 200
+    margin = 150
 
     first_col_x = margin
     second_col_x = screen.width - margin - v2_text.width
     first_row_y = base_height
-    second_row_y = base_height + m1_text.height + line_spacing
+    second_row_y = first_row_y + m1_text.height + line_spacing
+    third_row_y = second_row_y + m1_text.height + line_spacing
 
     return (
         (first_col_x, first_row_y),
         (first_col_x, second_row_y),
+        (first_col_x, third_row_y),
         (second_col_x, first_row_y),
         (second_col_x, second_row_y),
+        (second_col_x, third_row_y),
     )
 
 
@@ -66,7 +77,7 @@ def brick_simulation(
 
     # init fonts and text
     monospace = pygame.font.SysFont("monospace", 18)
-    cambria_math = pygame.font.SysFont("cambriamath", 20)
+    cambria_math = pygame.font.SysFont("cambriamath", 28)
 
     pause_hint = monospace.render("Press space to pause/resume the simulation", True, "grey80")
     paused_text = monospace.render("simulation paused", True, "grey85")
@@ -76,7 +87,9 @@ def brick_simulation(
 
     v1_text, v2_text = _render_velocity_texts(cambria_math, bricks)
 
-    m1_text_pos, v1_text_pos, m2_text_pos, v2_text_pos = _calculate_simulation_info_pos(
+    energy1_text, energy2_text = _render_energy_texts(cambria_math, bricks)
+
+    m1_text_pos, v1_text_pos, energy1_text_pos, m2_text_pos, v2_text_pos, energy2_text_pos = _calculate_simulation_info_pos(
         screen, m1_text, v2_text
     )
 
@@ -96,8 +109,10 @@ def brick_simulation(
         # draw simulation parameters
         screen.blit(m1_text, m1_text_pos)
         screen.blit(v1_text, v1_text_pos)
+        screen.blit(energy1_text, energy1_text_pos)
         screen.blit(m2_text, m2_text_pos)
         screen.blit(v2_text, v2_text_pos)
+        screen.blit(energy2_text, energy2_text_pos)
 
         if not is_paused:  # Update simulation state
 
@@ -112,6 +127,7 @@ def brick_simulation(
 
                         brick.handle_collision(target_sprite)
                         v1_text, v2_text = _render_velocity_texts(cambria_math, bricks)
+                        energy1_text, energy2_text = _render_energy_texts(cambria_math, bricks)
 
         else:
             screen.blit(paused_text, (screen.width // 2 - paused_text.width // 2, 5))

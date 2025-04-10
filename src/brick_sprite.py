@@ -22,6 +22,10 @@ class BrickSprite(pygame.sprite.Sprite):
 
         self.image.fill(color)
 
+    @property
+    def kinetic_energy(self):
+        return self.mass * self.velocity ** 2 / 2
+
     def _move(self, dt: float):
 
         self.rect.x += self.velocity * constants.PIXELS_PER_METER * dt
