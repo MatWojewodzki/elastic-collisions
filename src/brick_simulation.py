@@ -23,11 +23,12 @@ def _calculate_simulation_info_pos(
 ) -> ((int, int), (int, int), (int, int), (int, int)):
 
     base_height = 230
-    line_spacing = 5
-    margin = 150
+    line_spacing = 8
+    column_gutter = 150
 
-    first_col_x = margin
-    second_col_x = screen.width - margin - v2_text.width
+    first_col_x = screen.width // 2 - column_gutter // 2 - m1_text.width
+    second_col_x = screen.width // 2 + column_gutter // 2
+
     first_row_y = base_height
     second_row_y = first_row_y + m1_text.height + line_spacing
     third_row_y = second_row_y + m1_text.height + line_spacing
@@ -50,7 +51,7 @@ def brick_simulation(
 ):
     pygame.init()
     pygame.display.set_caption("Elastic Collision Simulation")
-    screen = pygame.display.set_mode((680, 480))
+    screen = pygame.display.set_mode((680, 480), pygame.RESIZABLE)
     clock = pygame.time.Clock()
     running = True
     is_paused = True
@@ -77,7 +78,7 @@ def brick_simulation(
 
     # init fonts and text
     monospace = pygame.font.SysFont("monospace", 18)
-    cambria_math = pygame.font.SysFont("cambriamath", 28)
+    cambria_math = pygame.font.SysFont("cambriamath", 24)
 
     pause_hint = monospace.render("Press space to pause/resume the simulation", True, "grey80")
     paused_text = monospace.render("simulation paused", True, "grey85")
@@ -98,8 +99,25 @@ def brick_simulation(
         for event in pygame.event.get():
             if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
                 running = False
+
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 is_paused = not is_paused
+
+            if event.type == pygame.WINDOWSIZECHANGED:
+                screen_width = event.x
+                if screen_width < 550:
+                    screen_width = 550
+                    screen = pygame.display.set_mode((550, event.y), pygame.RESIZABLE)
+
+                for brick in bricks:
+                    brick.set_screen_width(screen_width)
+
+                if bricks.sprites()[1].rect.left <= bricks.sprites()[0].rect.right:
+                    bricks.sprites()[1].rect.left = bricks.sprites()[0].rect.right + 1
+
+                m1_text_pos, v1_text_pos, energy1_text_pos, m2_text_pos, v2_text_pos, energy2_text_pos = _calculate_simulation_info_pos(
+                    screen, m1_text, v2_text
+                )
 
         screen.fill("black")
         bricks.draw(screen)

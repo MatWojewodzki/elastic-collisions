@@ -61,3 +61,7 @@ class BrickSprite(pygame.sprite.Sprite):
 
     def update(self, dt: float):
         self._move(dt)
+
+    def set_screen_width(self, new_screen_width: int):
+        self.rect.centerx *= new_screen_width / self.screen_width
+        self.screen_width = new_screen_width
